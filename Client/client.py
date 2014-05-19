@@ -16,15 +16,11 @@ import socket,pickle, hashlib
 __IRC__ = " Python IRC "
 
 
-
-
-
 class login1(QDialog):
 	"""docstring for login1"""
 	def __init__(self, parent=None):
 		super(login1, self).__init__(parent)
 		
-
 		logo = QPixmap("download.jpg")
 		logo_label = QLabel(self)
 		logo_label.setPixmap(logo)
@@ -238,4 +234,6 @@ def main ():
 	app.exec_()
 if __name__ == '__main__':
 	main()
+
+
 
