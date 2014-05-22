@@ -7,7 +7,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 	def handle(self):
 		#print(self.request)
 
-			''' listening to the port on localhost and recieving the data'''
+		''' listening to the port on localhost and recieving the data'''
 		
 
 		self.data = self.request.recv(1024)
@@ -39,7 +39,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 			token = "INVALID"
 		#print(token)
 		test = self.request.sendto(token, self.client_address)
-		
+		print(test)
 
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
