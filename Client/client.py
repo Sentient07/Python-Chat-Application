@@ -15,6 +15,7 @@ import sys
 from PySide.QtCore import *
 from PySide.QtGui import *
 import socket,pickle, hashlib
+import threading
 
 __IRC__ = " Python Chat Client Application "
 
@@ -98,11 +99,10 @@ class login1(QDialog):
 
 		try:
 			sock.connect((host,port))
-			password = hashlib.sha224(self.npwd.text()).hexdigest()
-			dict = {'user name': self.newusr.text(), 'passwd': password}
+			password = hashlib.sha224(self.pwd.text()).hexdigest()
+			dict = {'user name': self.uname.text(), 'passwd': password}
 			dumped = pickle.dumps(dict)
 			sock.sendto(dumped,((host,port)))
-			conn, addr = sock.accept()
 			recieved = sock.recv(4096)
 
 		except Exception, e:
@@ -124,7 +124,8 @@ class login1(QDialog):
 			else :
 				mchat = MainWindow()
 				mchat.exec_()
-				closeEvent(event)
+				threading.thread(target=mchat.RecievingMessages, args=(self.uname,)).start()
+				self.layout.setVisible(False)
 		except Exception, f:
 			msgbox = QMessageBox()
 			msgbox.setText(str(f))
@@ -151,7 +152,6 @@ class login1(QDialog):
 	def closeEvent(self, event):
 
 		event.accept()
-		
 
 
 class MainWindow(QDialog):
@@ -200,6 +200,21 @@ class MainWindow(QDialog):
 
 		event.accept()
 
+	def RecievingMessages(uname):
+		sockk = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		host1 = "127.0.0.1"
+		port1 = 8890
+		try :
+			sockk.connect((host1,port1))
+			sockk.sendto(uname, (host1,8889))
+			while True :
+				posts = sockk.recv(1024)
+				self.chat.insertPlainText(posts)
+
+		except Exception, e3:
+			msgbox = QMessageBox()
+			msgbox.setText(str(e3))
+			msgbox.exec_()
 
 	def posting_messages(self):
 
@@ -216,14 +231,13 @@ class MainWindow(QDialog):
 			msgbox.exec_()
 			#sys.exit()
 		else :
-		message = self.messages.text()
-		sock.sendto(message,((host,port)))	
-			while True:
-				recieved = sock.recv(4096)
-				self.chat.insertPlainText(recieved)
-				self.messages.setText("")
+			message = self.messages.text()
+			sock.sendto(message,((host,port)))	
+			#while True:
+			#recieved = sock.recv(4096)
+			self.messages.setText("")
 		
-
+            
 
 
 class NewUser(QDialog):
@@ -301,6 +315,9 @@ class NewUser(QDialog):
 			msgbox = QMessageBox()
 			msgbox.setText("Passwords do not match ! Enter again")
 			msgbox.exec_()
+			self.npwd.setText("")
+			self.npwdr.setText("")
+
 		else :
 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			host = '127.0.0.1'
